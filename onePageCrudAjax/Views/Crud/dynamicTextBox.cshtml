@@ -1,0 +1,94 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>dynamicTextBox</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <form>
+        <div>
+
+            <select id="drop" onchange="getdropvalue(drop)">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+
+            </select>
+            <br />
+            <br />
+            <input type="text" required name="name" value="" />
+            <br />
+            <br />
+            <br />
+            <br />
+            <div id="dd">
+
+
+            </div>
+            <br/>
+            <input type="button" class="btn btn-primary" id="btnsave" name="name" value="Click Here" />
+            <input type="submit" name="name" value="hello" />
+
+        </div>
+
+    </form>
+
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+    <script>
+        function getdropvalue(dropval)
+        {
+            var value = dropval.value;
+          
+            $("#dd").html("");
+            for (var i = 1; i <= value; i++) {
+
+                $("#dd").append('<input required type="text" id="txt' + i + '" name="name" value="" /><br/>');
+            }
+        }
+
+        $("#btnsave").on('click', function (e) {
+            debugger;
+            e.preventDefault();
+            //var _this = $(this);
+            //var _form = _this.closest("form");
+
+            //var validator = $("form").validate();
+            //var anyError = false;
+            //_form.find("input").each(function () {
+            //    if (!validator.element(this)) {
+            //        anyError = true;
+            //    }
+            //});
+
+            //if (anyError)
+            //    return false;
+
+            var model = {
+                Name: $("#txt1").val(),
+                Email: $("#txt2").val(),
+                City: $("#txt3").val()
+            };
+
+            $.ajax({
+
+                type: "POST",
+                url: '@Url.Action("dynamicTextBox", "Crud")',
+                data: model,
+                success: function (retdata) {
+                    alert("successfully save");
+                }
+            });
+        });
+
+    </script>
+
+</body>
+</html>

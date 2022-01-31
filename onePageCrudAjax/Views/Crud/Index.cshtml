@@ -1,0 +1,258 @@
+﻿@model onePageCrudAjax.CrudMaster
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <link href="~/Content/alertify.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+</head>
+<body>
+    @using (Html.BeginForm("Index", "Crud", FormMethod.Post))
+    {
+     
+        @Html.HiddenFor(m=>m.Id)
+
+        <div class="modal fade" id="exampleModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">New message</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                                <label for="recipient-name" class="col-form-label">Name:</label>
+                                @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+
+
+                            </div>
+                            <div class="form-group">
+                                <label for="message-text" class="col-form-label">Email:</label>
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+
+
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message-text" class="col-form-label">City:</label>
+                                @Html.TextBoxFor(m => m.City, new { @class = "form-control" })
+
+
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <input class="btn btn-primary" type="button" id="btnsave" name="name" value="Click Here" />
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <div class="container">
+            <div class="clearfix" style="margin-top:50px">
+                <input type="button" id="modelbtn" class="btn btn-primary pull-right" name="name" value="Add New" />
+
+            </div>
+
+            
+
+
+            <table style="display:inline-table;margin-top:20px" class="table table-responsive table-bordered table-hover" id="tblGetData">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>City</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+
+                </thead>
+                <tbody></tbody>
+
+            </table>
+        </div>
+    }
+
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/Scripts/alertify.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            debugger;
+            getrecord();
+
+        });
+        //View
+        function getrecord() {
+            $.ajax({
+
+                type: "get",
+                url: '@Url.Action("getlist", "Crud")',
+                data: {},
+                success: function (retdata) {
+                    debugger;
+                    var tBody = $("#tblGetData > tbody");
+                    tBody.html("");
+                    for (var i = 0; i < retdata.length; i++) {
+                        tBody.append('<tr>' +
+                            '<td>' + retdata[i].Id + '</td>' +
+                            '<td>' + retdata[i].Name + '</td>' +
+                            '<td>' + retdata[i].Email + '</td>' +
+                            '<td>' + retdata[i].City + '</td>' +
+                            '<td><a class="btn btn-success" onclick="editemployeeMaster(' + retdata[i].Id + ')">Edit</a></td>' +
+                            '<td><a class="btn btn-danger" onclick="deleteemployeeMaster(' + retdata[i].Id + ')">Delete</a></td>' +
+                        '</tr>');
+
+                    
+                            
+
+                           
+                    }
+
+
+
+                },
+
+
+            });
+        }
+
+        //delete
+        function deleteemployeeMaster(id)
+        {
+            if (confirm('Are you sure you want to Delete Record?')) {
+                $.ajax({
+
+                    type: 'POST',
+                    url: '@Url.Action("deleteCrudMasterById", "Crud")',
+                    data: { cid: id },
+                    dataType: "json",
+                    success: function (data) {
+                        debugger;
+                        if (data != null) {
+                            alertify.error("Successfully Record Deleted..");
+                            getrecord();
+
+                        }
+
+                    }
+
+                });
+        
+         
+            }
+   
+        }
+
+
+        // edit
+        function editemployeeMaster(id) {
+            debugger;
+            $("#btnsave").val("Update");
+            $.ajax({
+
+                type: 'POST',
+                url: '@Url.Action("CrudMasterById", "Crud")',
+                data: { cid: id },
+                dataType: "json",
+                success: function (data) {
+                    debugger;
+                    if (data != null) {
+
+                        $("#Id").val(data.Id),
+                        $("#Name").val(data.Name),
+                         $("#Email").val(data.Email),
+                         $("#City").val(data.City)
+                        $('#exampleModal').modal('show');
+                    }
+
+                }
+
+            });
+
+        }
+        //Model Button
+        $("#modelbtn").on('click', function () {
+
+         $("#Name").val(""),
+         $("#Email").val(""),
+         $("#City").val(""),
+             $("#btnsave").val("Click Here"),
+         $('#exampleModal').modal('show');
+        });
+
+        $("#btnsave").on('click', function () {
+
+
+            var model = {
+                Id: $("#Id").val(),
+                Name: $("#Name").val(),
+                Email: $("#Email").val(),
+                City: $("#City").val()
+
+            };
+
+            // insert update
+            $.ajax({
+
+                type: 'POST',
+                url: '@Url.Action("Index", "Crud")',
+                data: model,
+                dataType: "json",
+                success: function (data) {
+                    if (data != null) {
+                        debugger;
+                        if (parseInt($("#Id").val()) > 0) {
+                             $("#Id").val("");
+                            alertify.success("Successfully Update Record..");
+
+                        }
+                        else {
+                            alertify.success("Successfully Save Record..");
+
+                        }
+                        getrecord();
+                        $('#exampleModal').modal('hide');
+
+
+
+                    }
+
+                }
+
+            });
+        });
+
+    </script>
+
+
+
+
+</body>
+</html>
